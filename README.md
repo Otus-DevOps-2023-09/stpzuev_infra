@@ -76,7 +76,7 @@ yc compute instance create `
 --core-fraction 50 `
 --create-boot-disk image-folder-id=standard-images,image-family=ubuntu-1604-lts,size=8 `
 --network-interface subnet-name=default-ru-central1-a,nat-ip-version=ipv4 `
---metadata-from-file user-data=metadata.yaml
+--metadata-from-file user-data=startup.yaml
 ```
 
 ## Homework 3, SSH Proxy Jump:
