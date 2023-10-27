@@ -45,7 +45,7 @@ sudo systemctl status mongodb
 
 ### Application Deploy
 ```
-sudo apt install git
+sudo apt install -y git
 git clone -b monolith https://github.com/express42/reddit.git
 cd reddit && bundle install
 puma -d
@@ -57,6 +57,26 @@ ps aux | grep puma
 git update-index --chmod=+x install_ruby.sh
 git update-index --chmod=+x install_mongodb.sh
 git update-index --chmod=+x deploy.sh
+```
+
+### Extra part
+
+Bash Script for deploy
+
+**metadata.yaml** собираем все в один скрипт и запускаем в CLI
+
+```
+yc compute instance create `
+--name reddit-app2 `
+--zone ru-central1-a `
+--hostname reddit-app2 `
+--memory=2 `
+--platform=standard-v3 `
+--cores=2 `
+--core-fraction 50 `
+--create-boot-disk image-folder-id=standard-images,image-family=ubuntu-1604-lts,size=8 `
+--network-interface subnet-name=default-ru-central1-a,nat-ip-version=ipv4 `
+--metadata-from-file user-data=metadata.yaml
 ```
 
 ## Homework 3, SSH Proxy Jump:
