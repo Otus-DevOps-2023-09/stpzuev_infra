@@ -5,7 +5,7 @@ stpzuev Infra repository
 
 ### Variables for Tests
 ```
-testapp_IP = 35.198.167.169
+testapp_IP = 158.160.117.127
 testapp_port = 9292
 ```
 
