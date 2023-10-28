@@ -1,7 +1,85 @@
 # stpzuev_infra
 stpzuev Infra repository
 
-## Home Work 3, SSH Proxy Jump:
+## Homework 4, Test Application Deploy and Run:
+
+### Variables for Tests
+```
+testapp_IP = 158.160.117.127
+testapp_port = 9292
+```
+
+### Git preps local
+```
+git checkout -b cloud-testapp
+git mv cloud-bastion.ovpn ./VPN/
+git mv setupvpn.sh ./VPN/
+```
+
+### Yandex Cloud CLI
+```
+yc compute instance create `
+--name reddit-app `
+--zone ru-central1-a `
+--hostname reddit-app `
+--memory=2 `
+--platform=standard-v3 `
+--cores=2 `
+--core-fraction 50 `
+--create-boot-disk image-folder-id=standard-images,image-family=ubuntu-1604-lts,size=8 `
+--network-interface subnet-name=default-ru-central1-a,nat-ip-version=ipv4 `
+--ssh-key C:\Users\stpzu\.ssh\appuser.pub
+```
+Проверяем подключение к хосту через ssh **yc-user@<ip-addr>**
+
+### ENV Install
+
+```
+sudo apt update
+sudo apt install -y ruby-full ruby-bundler build-essential
+sudo apt install mongodb
+sudo systemctl enable mongodb
+sudo systemctl start mongodb
+sudo systemctl status mongodb
+```
+
+### Application Deploy
+```
+sudo apt install -y git
+git clone -b monolith https://github.com/express42/reddit.git
+cd reddit && bundle install
+puma -d
+ps aux | grep puma
+```
+
+### Common Bash Scripts
+```
+git update-index --chmod=+x install_ruby.sh
+git update-index --chmod=+x install_mongodb.sh
+git update-index --chmod=+x deploy.sh
+```
+
+### Extra part
+
+Bash Script for deploy
+
+**metadata.yaml** собираем все в один скрипт и запускаем в CLI
+
+```
+yc compute instance create `
+--name reddit-app2 `
+--zone ru-central1-a `
+--hostname reddit-app2 `
+--memory=2 `
+--platform=standard-v3 `
+--cores=2 `
+--core-fraction 50 `
+--create-boot-disk image-folder-id=standard-images,image-family=ubuntu-1604-lts,size=8 `
+--network-interface subnet-name=default-ru-central1-a,nat-ip-version=ipv4 `
+--metadata-from-file user-data=startup.yaml
+```
+
+## Homework 3, SSH Proxy Jump:
 ### Данные для подключения к YC
 ```
 bastion_IP = 158.160.41.35
