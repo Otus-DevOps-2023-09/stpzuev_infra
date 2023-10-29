@@ -1,15 +1,16 @@
 # stpzuev_infra
-stpzuev Infra repository
+Stepan Zuev Infra repository for educational purposes
 
-## Homework 4, Test Application Deploy and Run:
+# Homework 4, Test Application Deploy and Run:
 
+## Main Part
 ### Variables for Tests
 ```
 testapp_IP = 158.160.117.127
 testapp_port = 9292
 ```
 
-### Git preps local
+### Git checkout
 ```
 git checkout -b cloud-testapp
 git mv cloud-bastion.ovpn ./VPN/
@@ -17,6 +18,7 @@ git mv setupvpn.sh ./VPN/
 ```
 
 ### Yandex Cloud CLI
+Необходимо использовать версию образа указанную в проекте **ubuntu-1604-lts**
 ```
 yc compute instance create `
 --name reddit-app `
@@ -53,17 +55,20 @@ ps aux | grep puma
 ```
 
 ### Common Bash Scripts
+Собираем все что набили выше в скрипты и добавляем в гите атрибуты исполняемости
 ```
 git update-index --chmod=+x install_ruby.sh
 git update-index --chmod=+x install_mongodb.sh
 git update-index --chmod=+x deploy.sh
 ```
 
-### Extra part
+## Bonus Part
 
-Bash Script for deploy
+### Bash Script for deploy
 
-**metadata.yaml** собираем все в один скрипт и запускаем в CLI
+Собираем все в один скрипт **startup.yaml**, внутри будет и скрипт и пользовательские данные
+
+Теперь запускаем ВМ которая сразу запускается с нашим приложением через CLI
 
 ```
 yc compute instance create `
@@ -79,7 +84,10 @@ yc compute instance create `
 --metadata-from-file user-data=startup.yaml
 ```
 
-## Homework 3, SSH Proxy Jump:
+# Homework 3, SSH Proxy Jump
+
+## Основное задание
+
 ### Данные для подключения к YC
 ```
 bastion_IP = 158.160.41.35
@@ -96,7 +104,9 @@ ssh -A -t appuser@158.160.41.35 ssh appuser@10.128.0.21
 ```
 Запускаем удаленно ssh подключение, "-A" использует ssh агента, "-t" запускает команду на псевдо-терминале.
 
-### Бонус трек. SSH Config Alias
+## Бонусное задание
+
+### SSH Config Alias
 Добавляем настройки для бастиона и локальных машин в **~/.ssh/config**
 ```
 Host bastion
