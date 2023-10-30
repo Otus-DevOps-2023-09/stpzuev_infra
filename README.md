@@ -67,9 +67,6 @@ Done!
 
 ### Exercise
 [Packer Variables Usage](https://developer.hashicorp.com/packer/docs/templates/legacy_json_templates/user-variables)
-```
-packer build -var-file ./packer/variables.json ubuntu.json
-```
 
 Variables in .json
 ```
@@ -84,6 +81,26 @@ Implementation
     "parameter": "{{user `variable`}}"
 }
 ```
+
+Testing
+```
+packer build -var-file=variables.json ubuntu.json
+```
+Starting by CLI
+```
+yc compute instance create `
+--name reddit-app `
+--zone ru-central1-a `
+--hostname reddit-app `
+--memory=2 `
+--platform=standard-v3 `
+--cores=2 `
+--core-fraction 50 `
+--create-boot-disk image-folder-id=<user-folder-id>,image-family=reddit-base `
+--network-interface subnet-name=default-ru-central1-a,nat-ip-version=ipv4 `
+--ssh-key C:\Users\****\.ssh\appuser.pub
+```
+Success!
 
 # Homework 4, Test Application Deploy and Run:
 

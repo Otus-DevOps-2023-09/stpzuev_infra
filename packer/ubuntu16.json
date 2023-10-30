@@ -2,15 +2,16 @@
   "builders": [
     {
       "type": "yandex",
-      "service_account_key_file": "{{user `service_account_key_file`}}",
-      "folder_id": "{{user `folder_id`}}",
-      "source_image_family": "{{user `source_image_family`}}",
+      "service_account_key_file": "{{ user `service_account_key_file`}}",
+      "folder_id": "{{ user `folder_id`}}",
+      "source_image_family": "{{ user `source_image_family`}}",
       "image_name": "reddit-base-{{timestamp}}",
       "image_family": "reddit-base",
       "ssh_username": "ubuntu",
       "platform_id": "standard-v3",
-      "zone": "{{user `zone`}}",
-      "use_ipv4_nat": "{{user `use_ipv4_nat`}}"
+      "subnet_id": "{{ user `subnet_id`}}",
+      "zone": "{{ user `zone`}}",
+      "use_ipv4_nat": "{{ user `use_ipv4_nat`}}"
     }
   ],
   "provisioners": [
