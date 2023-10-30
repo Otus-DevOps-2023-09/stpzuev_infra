@@ -1,6 +1,90 @@
 # stpzuev_infra
 Stepan Zuev Infra repository for educational purposes
 
+# Homework 5, Packer
+
+## Main Part
+
+### Install packer
+Download link https://hashicorp-releases.yandexcloud.net/packer/1.9.4/
+```
+wget packer.zip
+unzip packer.zip
+sudo mv packer /usr/local/bin
+packer -v
+```
+
+### YC Service Account
+```
+yc config list
+yc iam service-account create --name $SVC_ACCT --folder-id $FOLDER_ID
+yc iam service-account get $SVC_ACCT
+yc resource-manager folder add-access-binding --id $FOLDER_ID \
+--role editor \
+--service-account-id $ACCT_ID
+yc iam key create --service-account-id $ACCT_ID --output <вставьте свой путь>/key.json
+```
+
+### Packer Template
+
+Builder .json template [**ubuntu.json**](https://gist.githubusercontent.com/Yessos/c1a49ada622255f462a6e191a1dd39e2/raw/8fff42944adc24c22116838de114ef24eacab2b9/ubuntu16.json)
+
+Template with provisioning [**ubuntu1.json**](https://gist.githubusercontent.com/Yessos/2f1917bd0101d88ebefd8e87b362fc6b/raw/5ffdf3819794f6d3917e37ef167cede50160cd5e/ubuntu16.json)
+
+Packer plugin for YandexCloud [packer for yandex](https://cloud.yandex.com/en/docs/tutorials/infrastructure-management/packer-quickstart)
+
+```
+packer init .\config.pkr.hcl
+packer validate .\ubuntu16.json
+```
+
+Error for network. Edit *ubuntu16.json* in *builders* add
+```
+"subnet_id": "e9bda6c3k22fog******",
+"zone": "ru-central1-a",
+"use_ipv4_nat": "true"
+```
+Building image
+```
+packer build .\ubuntu16.json
+yc compute images list
+```
+Creating new VM with our image via Web
+
+Done!
+
+Deploy application reddit
+```
+ssh -i ~/.ssh/appuser appuser@<публичный IP машины>
+sudo apt-get update
+sudo apt-get install -y git
+git clone -b monolith https://github.com/express42/reddit.git
+cd reddit && bundle install
+puma -d
+```
+
+Done!
+
+### Exercise
+[Packer Variables Usage](https://developer.hashicorp.com/packer/docs/templates/legacy_json_templates/user-variables)
+```
+packer build -var-file ./packer/variables.json ubuntu.json
+```
+
+Variables in .json
+```
+{
+    "variable": "value"
+}
+```
+
+Implementation
+```
+{
+    "parameter": "{{user `variable`}}"
+}
+```
+
 # Homework 4, Test Application Deploy and Run:
 
 ## Main Part

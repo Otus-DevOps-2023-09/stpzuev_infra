@@ -1,1 +1,6 @@
+# pycharm section
 .idea/
+
+# packer section
+packer/variables.json
+packer/config.pkr.hcl
