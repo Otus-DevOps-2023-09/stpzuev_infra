@@ -5,6 +5,8 @@ Stepan Zuev Infra repository for educational purposes
 
 ## Main Part
 
+[Packer Yandex plugin integration](https://developer.hashicorp.com/packer/integrations/hashicorp/yandex/latest/components/builder/yandex)
+
 ### Install packer
 Download link https://hashicorp-releases.yandexcloud.net/packer/1.9.4/
 ```
@@ -101,6 +103,70 @@ yc compute instance create `
 --ssh-key C:\Users\****\.ssh\appuser.pub
 ```
 Success!
+
+## Bonus part
+
+### Bake
+
+**immutable.json** мы можем задеплоить приложение, но оно должно стартовать при запуске. Текущий скрипт содержит **puma -d** и эта часть не сохранится при "запекании". Нужно сделать скрипт, который будет автоматически запускаться как сервис.
+
+[systemd service](https://linuxhandbook.com/create-systemd-services/) статья как сделать из нашего скрипта сервис.
+
+Создаем **puma.service** по инструкции. Теперь надо добавить его в сборку и активировать сервис в образе.
+
+Добавляем в **immutable.json**:
+```
+"provisioners": [
+    {
+            "type": "file",
+            "source": "./files/puma.service",
+            "destination": "/tmp/puma.service"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sudo mv /tmp/puma.service /etc/systemd/system/puma.service",
+        ...
+        "cd /monolith/reddit && bundle install",
+        "sudo systemctl daemon-reload",
+        "sudo systemctl start puma",
+        "sudo systemctl enable puma"
+      ]
+    }
+```
+
+Что бы использовать образы из **reddit-base**, packer должен знать где их искать. Добавляем в json *"source_image_folder_id"* со значением нашего *folder_id*
+[packer yandex builder](https://developer.hashicorp.com/packer/integrations/hashicorp/yandex/latest/components/builder/yandex)
+```
+"builders": [
+    {
+      "type": "yandex",
+      ...
+      "source_image_folder_id": "{{ user `folder_id`}}",
+      "source_image_family": "reddit-base",
+```
+
+Собираем образ с установленным приложением
+```
+packer build -var-file=".\variables.json" .\immutable.json
+```
+
+Запускаем ВМ на образе **reddit-full**
+```
+yc compute instance create `
+ --name reddit-app `
+ --zone ru-central1-a `
+ --hostname reddit-app `
+ --platform=standard-v3 --cores=2 --memory=2 --core-fraction 50 `
+ --create-boot-disk source-image-folder-id=b1gk6gb6l49ucpjkrmtr,image-family=reddit-full `
+ --network-interface subnet-name=default-ru-central1-a,nat-ip-version=ipv4 `
+ --ssh-key ...
+```
+
+Ждем когда поднимется инстанс. Вуа-ля! Приложение работает из коробки.
+
+### Automate
+Упаковываем все в скрипт **create-reddit-vm.sh**
 
 # Homework 4, Test Application Deploy and Run:
 
