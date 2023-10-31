@@ -1,0 +1,39 @@
+{
+  "builders": [
+    {
+      "type": "yandex",
+      "service_account_key_file": "{{ user `service_account_key_file`}}",
+      "folder_id": "{{ user `folder_id`}}",
+      "source_image_folder_id": "{{ user `folder_id`}}",
+      "source_image_family": "{{ user `source_image_family`}}",
+      "image_name": "reddit-full-{{timestamp}}",
+      "image_family": "reddit-full",
+      "ssh_username": "ubuntu",
+      "platform_id": "standard-v3",
+      "subnet_id": "{{ user `subnet_id`}}",
+      "zone": "{{ user `zone`}}",
+      "use_ipv4_nat": "{{ user `use_ipv4_nat`}}"
+    }
+  ],
+  "provisioners": [
+    {
+            "type": "file",
+            "source": "./files/puma.service",
+            "destination": "/tmp/puma.service"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sudo mv /tmp/puma.service /etc/systemd/system/puma.service",
+        "sudo apt update",
+        "sudo apt install -y git",
+        "sudo mkdir -p /monolith && sudo chown $USER /monolith && cd /monolith",
+        "git clone -b monolith https://github.com/express42/reddit.git",
+        "cd /monolith/reddit && bundle install",
+        "sudo systemctl daemon-reload",
+        "sudo systemctl start puma",
+        "sudo systemctl enable puma"
+      ]
+    }
+  ]
+}
