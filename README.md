@@ -72,7 +72,8 @@ Remote connection
 ```
 terraform taint yandex_compute_instance.app
 terraform plan
-terraform apply
+terraform apply -auto-approve
+terraform destroy -auto-approve
 ```
 
 На этом основная часть сделана. Переменные определены и применены.
@@ -80,35 +81,49 @@ terraform apply
 ## Bonus part
 
 ### Load balancer
-[YC Load Balancer DOCs](https://cloud.yandex.com/en/docs/application-load-balancer/)
+[YC Network Load Balancer DOCs](https://cloud.yandex.ru/docs/network-load-balancer/quickstart)
 
 [YC Load Balancer Instruction](https://cloud.yandex.ru/docs/network-load-balancer/operations/internal-lb-create)
 
-[Terraform Yandex LB Docs](https://terraform-provider.yandexcloud.net/Resources/alb_load_balancer)
+[Terraform Yandex LB Docs](https://terraform-provider.yandexcloud.net/Resources/lb_network_load_balancer)
+
+[Terraform Yandex LB Target Group](https://terraform-provider.yandexcloud.net/Resources/lb_target_group)
+
+Duplicate reddit-app. Test. Ok!
+
+Adding **count** variable
 
 Create **lb.tf**
 ```
-resource "yandex_lb_network_load_balancer" "reddit" {
-  name = "lb-reddit"
+resource "yandex_lb_network_load_balancer" "foo" {
+  name = "my-network-load-balancer"
+
   listener {
-    name = "listener-reddit"
+    name = "my-listener"
     port = 9292
-    internal_address_spec {
-      subnet_id = "<идентификатор_подсети>"
-      ip_version = "<версия_IP-адреса:_ipv4_или_ipv6>"
+    external_address_spec {
+      ip_version = "ipv4"
     }
+  }
+
   attached_target_group {
-    target_group_id = "<идентификатор_целевой_группы>"
+    target_group_id = "${yandex_lb_target_group.my-target-group.id}"
+
     healthcheck {
-      name = "<имя_проверки_состояния>"
-        http_options {
-          port = <номер_порта>
-          path = "<адрес_URL,_по_которому_будут_выполняться_проверки>"
-        }
+      name = "http"
+      http_options {
+        port = 9292
+        path = "/"
+      }
     }
   }
 }
+```
+Start. Test. Destroy.
 
+Небольшие проблемы с provisioning. Добавил в **deploy.sh** ожидание завершения **apt**
+```
+a=1; while [ -n "$(pgrep apt-get)" ]; do echo $a; sleep 1s; a=$(expr $a + 1); done
 ```
 
 # Homework 5, Packer
