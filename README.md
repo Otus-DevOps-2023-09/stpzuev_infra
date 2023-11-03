@@ -1,6 +1,116 @@
 # stpzuev_infra
 Stepan Zuev Infra repository for educational purposes
 
+# Homework 6, Terraform 1
+
+[OAuth Token](https://oauth.yandex.ru/authorize?response_type=token&client_id=1a6990aa636648e9b2ef855fa7bec2fb)
+
+## Main Part
+
+### Preps
+
+New branch **terraform-1**
+
+Create main.tf at /terraform, with auth information. Better to use service account.
+```
+yc config list
+```
+
+[Yandex Terraform install](https://cloud.yandex.ru/docs/tutorials/infrastructure-management/terraform-quickstart#install-terraform)
+
+```
+$Env:YC_TOKEN=$(yc iam create-token)
+$Env:YC_CLOUD_ID=$(yc config get cloud-id)
+$Env:YC_FOLDER_ID=$(yc config get folder-id)
+
+terraform providers lock -net-mirror=https://terraform-mirror.yandexcloud.net -platform=linux_amd64 -platform=darwin_arm64 -platform=windows_amd64 yandex-cloud/yandex
+```
+
+Trying to init
+```
+terraform init
+terraform plan
+terraform apply
+terraform show
+terraform destroy
+```
+Done!
+
+Adding metadata with ssh key to **"app"** resource.
+```
+terraform apply
+ssh ubuntu@<ip.yandex.app>
+```
+Done!
+
+### Output variables
+Make file **otputs.tf** at /terraform
+```
+terraform refresh
+...
+Outputs:
+external_ip_address_app = "51.250.69.230"
+
+terraform output
+external_ip_address_app = "51.250.69.230"
+
+terraform output external_ip_address_app
+"51.250.69.230"
+```
+### Provisioners
+
+```
+provisioner "file" {
+  source = "files/puma.service"
+  destination = "/tmp/puma.service"
+}
+```
+
+puma.service deploy.sh
+
+Remote connection
+```
+terraform taint yandex_compute_instance.app
+terraform plan
+terraform apply
+```
+
+На этом основная часть сделана. Переменные определены и применены.
+
+## Bonus part
+
+### Load balancer
+[YC Load Balancer DOCs](https://cloud.yandex.com/en/docs/application-load-balancer/)
+
+[YC Load Balancer Instruction](https://cloud.yandex.ru/docs/network-load-balancer/operations/internal-lb-create)
+
+[Terraform Yandex LB Docs](https://terraform-provider.yandexcloud.net/Resources/alb_load_balancer)
+
+Create **lb.tf**
+```
+resource "yandex_lb_network_load_balancer" "reddit" {
+  name = "lb-reddit"
+  listener {
+    name = "listener-reddit"
+    port = 9292
+    internal_address_spec {
+      subnet_id = "<идентификатор_подсети>"
+      ip_version = "<версия_IP-адреса:_ipv4_или_ipv6>"
+    }
+  attached_target_group {
+    target_group_id = "<идентификатор_целевой_группы>"
+    healthcheck {
+      name = "<имя_проверки_состояния>"
+        http_options {
+          port = <номер_порта>
+          path = "<адрес_URL,_по_которому_будут_выполняться_проверки>"
+        }
+    }
+  }
+}
+
+```
+
 # Homework 5, Packer
 
 ## Main Part
