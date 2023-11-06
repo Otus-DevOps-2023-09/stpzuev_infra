@@ -4,3 +4,10 @@
 # packer section
 packer/variables.json
 packer/config.pkr.hcl
+
+*.tfstate
+*.tfstate.*.backup
+*.tfstate.backup
+*.tfvars
+.terraform
+/terraform/.terraform.lock.hcl

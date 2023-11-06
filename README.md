@@ -1,6 +1,131 @@
 # stpzuev_infra
 Stepan Zuev Infra repository for educational purposes
 
+# Homework 6, Terraform 1
+
+[OAuth Token](https://oauth.yandex.ru/authorize?response_type=token&client_id=1a6990aa636648e9b2ef855fa7bec2fb)
+
+## Main Part
+
+### Preps
+
+New branch **terraform-1**
+
+Create main.tf at /terraform, with auth information. Better to use service account.
+```
+yc config list
+```
+
+[Yandex Terraform install](https://cloud.yandex.ru/docs/tutorials/infrastructure-management/terraform-quickstart#install-terraform)
+
+```
+$Env:YC_TOKEN=$(yc iam create-token)
+$Env:YC_CLOUD_ID=$(yc config get cloud-id)
+$Env:YC_FOLDER_ID=$(yc config get folder-id)
+
+terraform providers lock -net-mirror=https://terraform-mirror.yandexcloud.net -platform=linux_amd64 -platform=darwin_arm64 -platform=windows_amd64 yandex-cloud/yandex
+```
+
+Trying to init
+```
+terraform init
+terraform plan
+terraform apply
+terraform show
+terraform destroy
+```
+Done!
+
+Adding metadata with ssh key to **"app"** resource.
+```
+terraform apply
+ssh ubuntu@<ip.yandex.app>
+```
+Done!
+
+### Output variables
+Make file **otputs.tf** at /terraform
+```
+terraform refresh
+...
+Outputs:
+external_ip_address_app = "51.250.69.230"
+
+terraform output
+external_ip_address_app = "51.250.69.230"
+
+terraform output external_ip_address_app
+"51.250.69.230"
+```
+### Provisioners
+
+```
+provisioner "file" {
+  source = "files/puma.service"
+  destination = "/tmp/puma.service"
+}
+```
+
+puma.service deploy.sh
+
+Remote connection
+```
+terraform taint yandex_compute_instance.app
+terraform plan
+terraform apply -auto-approve
+terraform destroy -auto-approve
+```
+
+На этом основная часть сделана. Переменные определены и применены.
+
+## Bonus part
+
+### Load balancer
+[YC Network Load Balancer DOCs](https://cloud.yandex.ru/docs/network-load-balancer/quickstart)
+
+[YC Load Balancer Instruction](https://cloud.yandex.ru/docs/network-load-balancer/operations/internal-lb-create)
+
+[Terraform Yandex LB Docs](https://terraform-provider.yandexcloud.net/Resources/lb_network_load_balancer)
+
+[Terraform Yandex LB Target Group](https://terraform-provider.yandexcloud.net/Resources/lb_target_group)
+
+Duplicate reddit-app. Test. Ok!
+
+Adding **count** variable
+
+Create **lb.tf**
+```
+resource "yandex_lb_network_load_balancer" "foo" {
+  name = "my-network-load-balancer"
+
+  listener {
+    name = "my-listener"
+    port = 9292
+    external_address_spec {
+      ip_version = "ipv4"
+    }
+  }
+
+  attached_target_group {
+    target_group_id = "${yandex_lb_target_group.my-target-group.id}"
+
+    healthcheck {
+      name = "http"
+      http_options {
+        port = 9292
+        path = "/"
+      }
+    }
+  }
+}
+```
+Start. Test. Destroy.
+
+Небольшие проблемы с provisioning. Добавил в **deploy.sh** ожидание завершения **apt**
+```
+a=1; while [ -n "$(pgrep apt-get)" ]; do echo $a; sleep 1s; a=$(expr $a + 1); done
+```
+
 # Homework 5, Packer
 
 ## Main Part
