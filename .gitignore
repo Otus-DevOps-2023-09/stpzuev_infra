@@ -11,3 +11,6 @@ packer/config.pkr.hcl
 *.tfvars
 .terraform
 /terraform/.terraform.lock.hcl
+/terraform/stage/.terraform.lock.hcl
+/terraform/stage/.terraform.tfstate.lock.info
+/terraform/prod/.terraform.lock.hcl

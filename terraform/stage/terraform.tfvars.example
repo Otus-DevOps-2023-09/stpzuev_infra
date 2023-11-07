@@ -1,0 +1,9 @@
+cloud_id                 = "b1b1b1b1b1b1b1b1b1b1"
+folder_id                = "b1b1b1b1b1b1b1b1b1b1"
+zone                     = "ru-central1-a"
+image_id                 = "fd8d8d8d8d8d8d8d8d8d"
+public_key_path          = "/home/user/.ssh/id_ed25519.pub"
+private_key_path         = "/home/user/.ssh/id_ed25519"
+subnet_id                = "e9e9e9e9e9e9e9e9e9e9"
+service_account_key_file = "/home/user/key.json"
+instances_count          = 2

@@ -1,6 +1,122 @@
 # stpzuev_infra
 Stepan Zuev Infra repository for educational purposes
 
+# Homework 7, Terraform 2
+
+## Main Part
+
+### Clean project before
+
+### Packer new images
+
+Bake!
+```shell
+packer build -var-file="variables.json" app.json
+packer build -var-file="variables.json" db.json
+```
+Done!
+
+### Split main.tf
+```
+        /  -  app.tf
+main.tf
+        \  -  db.tf
+        \  -  vpc.tf
+```
+
+New variables in **variables.tf**
+
+New file **vpc.tf** and edit **main.tf**
+
+Edit **outputs.tf**
+
+#### Boot images
+[Terraform yandex images Doc](https://terraform-provider.yandexcloud.net/Resources/compute_image)
+
+### VPC
+
+Quota for networks = 2 by default in Yandex. Can be upgraded in WebUI.
+
+Apply everything. Done.
+
+### !!! Question !!! Можно ли автоматически получать id образов своих сборок по `source_family`?
+
+### Modules
+
+Copy paste
+```
+terraform get
+terraform apply
+```
+SSH test. Done
+
+### Stage & Prod
+
+Copy. Paste. Edit both main.tf
+```
+terraform init
+terraform apply
+terraform destroy
+terraform fmt
+```
+
+## Bonus Part
+
+### backend.tf
+
+Create bucket [YC Doc Bucket](https://cloud.yandex.ru/docs/storage/operations/buckets/create)
+
+```shell
+yc storage bucket create --help
+
+yc storage bucket create `
+--name "stpzuev-app-backend" `
+--default-storage-class cold
+```
+
+Плохой вариант. Лучше создать бакет в терраформ. Создадим в корне проекта bucket.tf
+```
+...
+resource "yandex_storage_bucket" "terraform-storage" {
+  bucket        = var.bucket_name
+  access_key    = var.access_key
+  secret_key    = var.secret_key
+  force_destroy = "true"
+}
+```
+
+Create config [YC Terraform State Storage](https://cloud.yandex.ru/docs/tutorials/infrastructure-management/terraform-state-storage)
+
+[Terraform backend bucket](https://developer.hashicorp.com/terraform/language/settings/backends/s3)
+
+Create backend.tf at /stage
+```
+terraform init
+>> The parameter "endpoint" is deprecated. Use parameter "endpoints.s3" instead.
+
+```
+
+Здесь было потрачено очень много времени на поиск решения в глючном Terraform 1.6.3. Пришлось откатиться до 1.5.7 и **"О ЧУДО!"** все заработало по инструкции.
+
+Создаем бакет. Создаем статический ключ через веб. Копируем значения.
+
+```
+$Env:ACCESS_KEY="key value"
+$Env:SECRET_KEY="key value"
+terraform init -backend-config="access_key=$env:ACCESS_KEY" -backend-config="secret_key=$env:SECRET_KEY"
+```
+
+Удаляем **terraform.tfstate** делаем apply. Копируем папку в новое место делаем init + apply. Все раеботает.
+
+## Bonus part 2
+
+Копируем **deploy.sh** в модуль app. Добавляем provision с сервисом puma в main.tf. Но нам нужно передать адрес инстанса DB в передаваемый сервис.
+
+Переделаем **puma.service** в темплейт **puma.tpl** [Terraform Template](https://registry.terraform.io/providers/hashicorp/template/latest/docs/data-sources/file)
+
+Добавляем переменную db_ip_address.
+
+---
 # Homework 6, Terraform 1
 
 [OAuth Token](https://oauth.yandex.ru/authorize?response_type=token&client_id=1a6990aa636648e9b2ef855fa7bec2fb)
@@ -425,3 +541,5 @@ ssh someinternalhost
 В веб интерфейсе Pritunl нажимаем Settings, выбираем Lets Encrypt Domain и прописываем **"<наш ip-адрес>.nip.io"**
 Сохраняем. Перезагружем страницу и все работает.
 https://158.160.41.35.nip.io
+
+[How to make README readable](https://www.markdownguide.org/basic-syntax/)
