@@ -114,7 +114,9 @@ terraform init -backend-config="access_key=$env:ACCESS_KEY" -backend-config="sec
 
 Переделаем **puma.service** в темплейт **puma.tpl** [Terraform Template](https://registry.terraform.io/providers/hashicorp/template/latest/docs/data-sources/file)
 
-Добавляем переменную db_ip_address.
+Добавляем переменную db_ip_address и передаем ее в модуль app. Запускаем puma.service.
+
+Запускаем проект. Все работает.
 
 ---
 # Homework 6, Terraform 1
