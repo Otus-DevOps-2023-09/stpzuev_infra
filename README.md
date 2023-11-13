@@ -64,6 +64,10 @@ $ ansible all -m ping
     "ping": "pong"
 }
 ```
+Не забыть добавить исполняемость в гите
+```
+$ git update-index --chmod=+x inventory.sh
+```
 
 # Homework 7, Terraform 2
 
