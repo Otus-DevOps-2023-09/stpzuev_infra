@@ -1,6 +1,70 @@
 # stpzuev_infra
 Stepan Zuev Infra repository for educational purposes
 
+# Homework 8, Ansible 1
+
+## Main Part
+
+* Установил Ansible.
+* Создал первые конфиг файлы
+  * **ansible.cfg** - параметры по-умолчанию
+  * **inventory** - описание группы хостов и параметры доступа к ним
+  * **inventory.yaml** - то же самое только в yaml формате
+* Создал первый плейбук **clone.yaml**
+* Проверил работу
+
+Для использования инвентори отличного от указанного по-умолчанию необходимо использовать опцию "-i"
+```
+$ ansible all -m ping -i inventory.yml
+```
+
+В моей конфигурации хост БД создается без внешнего адреса, пришлось настроить подключение через **jump** сервер.
+```
+db:
+  hosts:
+    10.128.0.13:
+  vars:
+    ansible_ssh_common_args:
+      '-J ubuntu@158.160.120.253'
+```
+
+Плейбук проверяет состояние системы и применяет команды только если они приведут к изменениям конфигурации.
+
+## Bonus part
+Создал **inventory.json** для своих хостов. Проверил, работает.
+
+Создал скрипт **inventory.sh** который генерирует список хостов в JSON формате. Конечно с поддержкой опций **--list** и **--host**
+```
+yc compute instance get --name reddit-app-stage --format=json | jq -r '.network_interfaces[0].primary_v4_address.one_to_one_nat.address'
+```
+Дальше пробуем исполнить ansible с нашим динамическим inventory
+```
+$ ansible -i inventory.sh all -m ping
+```
+
+Меняем в нашем конфиг файле значение inventory на наш скрипт
+```
+inventory = ./inventory.sh
+```
+Проверяем
+```
+$ ansible all -m ping
+158.160.48.94 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+10.128.0.28 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+```
+
 # Homework 7, Terraform 2
 
 ## Main Part
