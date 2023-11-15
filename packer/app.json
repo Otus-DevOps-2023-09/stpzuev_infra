@@ -11,7 +11,7 @@
       "platform_id": "standard-v3",
       "subnet_id": "{{ user `subnet_id`}}",
       "zone": "{{ user `zone`}}",
-      "use_ipv4_nat": "{{ user `use_ipv4_nat`}}"
+      "use_ipv4_nat": "true"
     }
   ],
   "provisioners": [

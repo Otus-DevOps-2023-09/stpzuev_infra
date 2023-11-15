@@ -6,6 +6,12 @@
 #  }
 #  required_version = ">= 0.13"
 #}
+provider "yandex" {
+  service_account_key_file = var.service_account_key_file
+  cloud_id                 = var.cloud_id
+  folder_id                = var.folder_id
+  zone                     = var.zone
+}
 
 resource "yandex_compute_instance" "db" {
   name        = "reddit-db-${var.env}"
@@ -29,25 +35,9 @@ resource "yandex_compute_instance" "db" {
 
   network_interface {
     subnet_id = var.subnet_id
-    nat       = true
   }
 
-  connection {
-    type  = "ssh"
-    host  = self.network_interface.0.nat_ip_address
-    user  = "ubuntu"
-    agent = false
-    private_key = file(var.private_key_path)
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "sudo sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mongodb.conf",
-      "sudo systemctl restart mongodb"
-    ]
-  }
-
-  metadata = {
+ metadata = {
     ssh-keys = "ubuntu:${file(var.public_key_path)}"
   }
 }

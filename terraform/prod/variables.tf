@@ -42,6 +42,9 @@ variable "db_disk_image" {
 variable "bucket_name" {
   description = "Name of S3 bucket"
 }
+variable "db_id" {
+  description = "YC dynamodb Database ID"
+}
 variable "access_key" {
   description = "S3 access key"
 }
