@@ -1,5 +1,41 @@
 # stpzuev_infra
-Stepan Zuev Infra repository for educational purposes
+Stepan Zuev Infrastructure repository for educational purposes
+
+# Homework 9, Ansible 2
+
+## Main Part
+
+### Clean ups
+
+Закомментировал провиженининг в модулях.
+
+### Playbooks
+
+new playbook **./ansible/reddit_app.yml**
+
+Adding vars, _template_ module.
+
+#### Handlers
+
+Trigger after changing configuration.
+``` 
+  tasks:
+    - name: Change mongo config file
+      ...
+      notify: restart mongodb # trigger here
+  handlers: 
+  - name: restart mongodb # exec here
+    ...
+```
+
+### Unit
+
+Добавляем puma.service на хост приложения. Он будет работать с конфигом для бд. 
+
+Создаем шаблон конфигурации с данными о бд /home/appuser/db_config
+
+
+Пробуем его запустить.
 
 # Homework 8, Ansible 1
 

@@ -1,8 +1,8 @@
 [app]
-app1 ansible_host=158.160.48.94
+app1 ansible_host=158.160.120.8
 
 [db]
-db1 ansible_host=10.128.0.28 ansible_user=ubuntu
+db1 ansible_host=10.128.0.3 ansible_user=ubuntu
 
 [db:vars]
-ansible_ssh_common_args='-J ubuntu@158.160.48.94'
+ansible_ssh_common_args='-J ubuntu@158.160.120.8'
