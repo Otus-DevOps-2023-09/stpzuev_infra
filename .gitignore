@@ -1,5 +1,6 @@
 # pycharm section
 .idea/
+/venv/
 
 # packer section
 packer/variables.json
