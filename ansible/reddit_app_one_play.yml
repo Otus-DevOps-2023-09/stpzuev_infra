@@ -1,0 +1,57 @@
+---
+- name: Configure hosts & deploy application
+  hosts: all
+  vars:
+    mongo_bind_ip: 0.0.0.0
+    db_host: "{{ hostvars['db1'].ansible_host }}"
+  tasks:
+    - name: Change mongo config file
+      become: true
+      template:
+        src: templates/mongod.conf.j2
+        dest: /etc/mongodb.conf
+      tags: db-tag
+      notify: restart mongodb
+
+    - name: Add config for DB connection
+      become: true
+      ansible.builtin.template:
+        src: templates/db_config.j2
+        dest: /home/ubuntu/db_config
+      tags: app-tag
+
+    - name: Add unit file for Puma
+      become: true
+      ansible.builtin.copy:
+        src: files/puma.service
+        dest: /etc/systemd/system/puma.service
+      tags: app-tag
+      notify: reload puma
+
+    - name: Enable puma
+      become: true
+      systemd: name=puma enabled=yes
+      tags: app-tag
+
+    - name: Fetch the latest version of application code
+      git:
+        repo: 'https://github.com/express42/reddit.git'
+        dest: /home/ubuntu/reddit
+        version: monolith # <-- Указываем нужную ветку
+      tags: deploy-tag
+      notify: reload puma
+
+    - name: Bundle install
+      bundler:
+        state: present
+        chdir: /home/ubuntu/reddit # <-- В какой директории выполнить команду bundle
+      tags: deploy-tag
+
+  handlers:
+  - name: restart mongodb
+    become: true
+    service: name=mongodb state=restarted
+
+  - name: reload puma
+    become: true
+    systemd: name=puma state=restarted

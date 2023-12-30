@@ -1,5 +1,6 @@
 # pycharm section
 .idea/
+/venv/
 
 # packer section
 packer/variables.json
@@ -14,3 +15,6 @@ packer/config.pkr.hcl
 /terraform/stage/.terraform.lock.hcl
 /terraform/stage/.terraform.tfstate.lock.info
 /terraform/prod/.terraform.lock.hcl
+
+#ansible
+*.retry

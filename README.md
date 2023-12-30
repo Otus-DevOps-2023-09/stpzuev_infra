@@ -1,5 +1,75 @@
 # stpzuev_infra
-Stepan Zuev Infra repository for educational purposes
+Stepan Zuev Infrastructure repository for educational purposes
+
+# Homework 9, Ansible 2
+
+## Main Part
+
+### Clean ups
+
+Закомментировал провиженининг в модулях.
+
+### Single Playbooks
+
+Создаем единый плейбук для всех блоков нашего проекта. Разделяем его выполнение при помощи тегов.
+
+#### DB part 
+
+Создаем новый плейбук **./ansible/reddit_app.yml**
+
+Добавляем переменную, используем _template_ модуль.
+
+**Handlers**
+
+Используем хендлер после изменения конфигурации.
+``` 
+  tasks:
+    - name: Change mongo config file
+      ...
+      notify: restart mongodb # trigger here
+  handlers: 
+  - name: restart mongodb # exec here
+    ...
+```
+
+#### App part
+
+Добавляем puma.service на хост приложения. Он будет работать с конфигом для бд. 
+
+Создаем шаблон конфигурации с данными о бд /home/ubuntu/db_config, добавляем адрес бд через переменную
+
+#### Deploy part
+
+Используем модули git и bundler. Разворачиваем наше приложение из репозитория.
+
+Проверяем наш плейбук, ограничиваем и при помощи 
+```
+ansible-playbook reddit_app.yml --limit app --tags deploy-tag 
+```
+
+### Multiple Playbook
+
+Разбиваем плейбук на логические части. Вызываем нужные части так же при помощи тегов.
+
+### Splited Playbook
+
+Разбиваем наш плейбук на отдельные файлы: **app.yml, db.yml, deploy.yml**
+
+Копируем логические блоки из единого плейбука в эти файлы. Теперь мы можем исполнять нужные части без тегов.
+
+Что бы исполнить все части одновременно, создадим новый плейбук.
+
+**Файл ansible/site.yml**
+```
+---
+- import_playbook: db.yml
+- import_playbook: app.yml
+- import_playbook: deploy.yml
+```
+Проверяем работу плейбука
+``` 
+ansible-playbook site.yml
+```
 
 # Homework 8, Ansible 1
 
